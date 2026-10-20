@@ -36,3 +36,33 @@ $('importSelection').onclick=async()=>{
  $('form').reset();$('initialChat').value=text.slice(0,100000);$('newDialog').showModal();$('name').focus();
  }catch{toast('Não foi possível importar. Clique no ícone da extensão nesta aba e tente novamente, ou cole o texto manualmente.')}
 };
+
+async function whatsappTab(){
+ const [tab]=await chrome.tabs.query({active:true,currentWindow:true});
+ if(!tab?.id||!tab.url?.startsWith('https://web.whatsapp.com/'))throw new Error('Abra o WhatsApp Web nesta janela e clique no ícone da extensão.');
+ return tab;
+}
+$('connectWhatsApp').onclick=async()=>{
+ const button=$('connectWhatsApp');button.disabled=true;
+ try{
+ const tab=await whatsappTab();
+ const results=await chrome.scripting.executeScript({target:{tabId:tab.id},func:()=>{
+ const root=document.querySelector('#main');
+ if(!root)return {error:'Abra uma conversa no WhatsApp Web antes de conectar.'};
+ const messages=Array.from(root.querySelectorAll('[data-pre-plain-text]')).map(node=>{
+ const body=node.querySelector('.selectable-text');
+ return body?.innerText?.trim() ? (node.getAttribute('data-pre-plain-text')||'')+body.innerText.trim():'';
+ }).filter(Boolean);
+ const name=root.querySelector('header [title]')?.getAttribute('title')||'';
+ return {name,text:messages.join('\n'),count:messages.length};
+ }});
+ const data=results[0]?.result;
+ if(data?.error)throw new Error(data.error);
+ if(!data?.text)throw new Error('Não encontrei mensagens de texto nesta conversa. Use Importar seleção ou cole o texto. O layout do WhatsApp pode ter mudado.');
+ if(current()&&!capture())return;
+ $('form').reset();$('name').value=data.name.slice(0,100);$('initialChat').value=data.text.slice(0,100000);
+ $('newDialog').showModal();
+ $('connectionStatus').textContent='Conversa carregada: '+data.count+' mensagens de texto. Confira o nome e o trecho antes de salvar. Importação pontual, sem sincronização.';
+ }catch(error){$('connectionStatus').textContent=error.message||'Falha na conexão.';toast(error.message||'Falha na conexão.')}
+ finally{button.disabled=false}
+};
