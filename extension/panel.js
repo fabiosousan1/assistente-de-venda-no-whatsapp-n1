@@ -66,3 +66,22 @@ $('connectWhatsApp').onclick=async()=>{
  }catch(error){$('connectionStatus').textContent=error.message||'Falha na conexão.';toast(error.message||'Falha na conexão.')}
  finally{button.disabled=false}
 };
+
+$('analyze').onclick=async()=>{
+ const c=current();if(!c)return toast('Importe ou cadastre uma conversa primeiro.');
+ if(!$('apiToken').value.trim())return toast('Informe o código de conexão configurado no servidor local.');
+ if(!capture())return;
+ if((c.reply||c.audio||c.summary)&&!confirm('Substituir o resumo, a resposta, o roteiro e a próxima ação pelas sugestões da IA?'))return;
+ const id=c.id,button=$('analyze');button.disabled=true;$('aiStatus').textContent='Analisando a conversa salva...';
+ try{
+ const response=await fetch('http://127.0.0.1:8787/analyze',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+$('apiToken').value.trim()},body:JSON.stringify({chat:c.chat,offers:state.offers}),signal:AbortSignal.timeout(70000)});
+ const data=await response.json();if(!response.ok)throw Error(data.error||'Falha na análise.');
+ if(!['summary','next','reply','audio'].every(k=>typeof data[k]==='string'))throw Error('Resposta inválida da IA.');
+ const target=state.clients.find(x=>x.id===id);if(!target)throw Error('O atendimento foi excluído durante a análise.');
+ for(const key of ['summary','next','reply','audio'])target[key]=data[key];
+ if(!persist())throw Error('A análise chegou, mas não foi possível salvar.');
+ if(selected===id)render();
+ $('aiStatus').textContent='Sugestões geradas. Confira os fatos e revise a resposta antes de enviar.';
+ }catch(error){$('aiStatus').textContent=error.message==='Failed to fetch'?'Servidor indisponível. Inicie o servidor local e confira a configuração.':error.message}
+ finally{button.disabled=false}
+};

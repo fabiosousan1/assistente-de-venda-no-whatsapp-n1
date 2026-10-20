@@ -1,23 +1,12 @@
-# Extensão Venda em Dia para Chrome
+# Extensão Chrome Venda em Dia 0.5
 
-## Instalar
-1. Baixe o ZIP do repositório e extraia.
-2. Abra chrome://extensions no Google Chrome.
-3. Ative Modo do desenvolvedor.
-4. Clique em Carregar sem compactação.
-5. Selecione a pasta extension, que contém manifest.json.
-6. Abra https://web.whatsapp.com/ e entre na sua conta.
-7. Clique no botão de extensões (quebra-cabeça) e em Venda em Dia.
+Instale a pasta extension em chrome://extensions > Modo do desenvolvedor > Carregar sem compactação.
+Abra WhatsApp Web, clique no ícone da extensão. Configure o servidor conforme [instruções](../server/README.md).
 
-## Usar
-Selecione um trecho da conversa no WhatsApp com o mouse. No painel lateral, clique em Importar seleção do WhatsApp. Revise o trecho, informe o nome e salve.
-Escreva a resposta no painel, copie e cole manualmente no WhatsApp. As datas de retomada aparecem no filtro, sem notificações em segundo plano.
+Importar seleção continua disponível. Conectar e carregar conversa aberta importa os textos carregados por botão. Acompanhar esta conversa envia atualizações à OpenAI enquanto ativo e sugere resposta e roteiro; Gerar áudio com IA cria MP3. Use Pausar antes de trocar de conversa. Histórico parcial, sem envio automático. Não é integração oficial da Meta. A chave de API fica somente no servidor. Não coloque .env no GitHub.
 
-## Limites e privacidade
-IA, geração de voz e envio automático não estão conectados. Não lê todas as conversas ou o histórico automaticamente. Não transcreve áudios. A extensão não usa API oficial do WhatsApp e não envia os dados a servidores.
-Dados no armazenamento local da extensão, sem login, backup ou sincronização. Desinstalar a extensão pode apagar os dados. A versão anterior aberta por arquivo tem armazenamento separado, sem migração automática.
-Permissões: sidePanel abre o painel; activeTab e scripting permitem ler a seleção na aba em que você clicou na extensão. Sem acesso permanente a todos os sites ou coleta em segundo plano.
-Use exemplos fictícios no teste inicial. Não inclua dados de clientes nem credenciais no GitHub.
+Permissões: sidePanel abre painel; activeTab e scripting leem a aba ativada por você; host_permissions permite conexão exclusivamente com servidor local 127.0.0.1. Sem acesso permanente ao WhatsApp, sem acesso a todos os sites.
 
-## Validação
-Manifesto e scripts conferidos estaticamente. Instalação no Chrome, persistência, importação e cópia ainda precisam de teste real no navegador.
+Dados locais sem backup e sem sincronização. Recarregar a mesma extensão na mesma pasta preserva normalmente o armazenamento; desinstalar ou mudar de pasta pode perder dados. Versão antiga por arquivo tem armazenamento separado.
+
+Verificação: sintaxe JavaScript e JSON conferida; sem ambiente de execução Chrome ou chave disponível para teste real. A leitura depende do layout do WhatsApp e deve ser validada antes de uso real.
